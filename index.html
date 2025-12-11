@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>
+      Free Image Converter | JPG, PNG, WEBP, PDF (Unlimited & Secure)
+    </title>
+    <meta
+      name="description"
+      content="Convert JPG to PNG, WEBP to JPG, or Image to PDF instantly. 100% Free, Unlimited, and Client-Side (No Uploads to Server). Fast & Secure Format Shifter."
+    />
+    <meta
+      name="keywords"
+      content="image converter, jpg to png, png to jpg, webp converter, image to pdf, free file converter, client side converter, format shifter, online converter, resim dönüştürücü"
+    />
+    <meta name="author" content="FormatShifter" />
+    <meta name="robots" content="index, follow" />
+
+    <meta
+      property="og:title"
+      content="FormatShifter - Ultimate Image Converter"
+    />
+    <meta
+      property="og:description"
+      content="Convert images securely in your browser. No server uploads. 100% Free."
+    />
+    <meta property="og:type" content="website" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "sans-serif"] },
+            animation: {
+              "pulse-slow": "pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            },
+            colors: {
+              dark: "#0f172a",
+              card: "#1e293b",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background-color: #0f172a;
+        color: #e2e8f0;
+      }
+
+      /* Glassmorphism Efekti */
+      .glass {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      /* Sürükle Bırak Alanı */
+      .drop-zone {
+        border: 2px dashed rgba(99, 102, 241, 0.4);
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .drop-zone:hover,
+      .drop-zone.dragover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.1);
+        transform: scale(1.01);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col relative overflow-x-hidden">
+    <div
+      class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none"
+    >
+      <div
+        class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse-slow"
+      ></div>
+      <div
+        class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse-slow"
+      ></div>
+    </div>
+
+    <nav class="w-full glass fixed top-0 z-50 px-6 py-4">
+      <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div
+          class="flex items-center gap-2 cursor-pointer"
+          onclick="window.scrollTo(0,0)"
+        >
+          <div
+            class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg"
+          >
+            FS
+          </div>
+          <span class="text-xl font-bold tracking-tight text-white"
+            >Format<span class="text-blue-400">Shifter</span></span
+          >
+        </div>
+
+        <div class="flex items-center gap-4">
+          <a
+            href="#how-it-works"
+            class="hidden md:block text-sm text-gray-400 hover:text-white transition-colors font-medium"
+            >How it Works?</a
+          >
+
+          <a
+            href="https://buymeacoffee.com/aimbot000"
+            target="_blank"
+            class="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-gray-900 px-4 py-2 rounded-full text-sm font-bold transition-transform hover:scale-105 shadow-lg shadow-yellow-500/20"
+          >
+            <span>☕</span><span>Support Me</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <main
+      class="flex-grow flex flex-col items-center justify-center p-4 pt-32 pb-10"
+    >
+      <div class="w-full max-w-2xl">
+        <div class="text-center mb-8">
+          <h1
+            class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-white mb-4"
+          >
+            Convert Any Image
+          </h1>
+          <p class="text-gray-400 text-lg">
+            JPG, PNG, WEBP, PDF. No Server, 100% Secure.
+          </p>
+        </div>
+
+        <div class="glass rounded-2xl p-8 shadow-2xl border border-gray-700/50">
+          <div
+            id="dropZone"
+            class="drop-zone rounded-xl h-64 flex flex-col items-center justify-center cursor-pointer relative group"
+          >
+            <input
+              type="file"
+              id="fileInput"
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              accept="image/*"
+            />
+
+            <div
+              id="uploadText"
+              class="text-center transition-all duration-300 group-hover:-translate-y-2"
+            >
+              <div
+                class="w-20 h-20 bg-gray-800/80 rounded-full mx-auto mb-6 flex items-center justify-center border border-gray-700 group-hover:border-blue-500 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-10 w-10 text-gray-400 group-hover:text-blue-400 transition-colors"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2">
+                Drag & Drop File Here
+              </h3>
+              <p class="text-sm text-gray-500">or click to browse</p>
+            </div>
+
+            <div
+              id="previewArea"
+              class="hidden flex flex-col items-center z-20 pointer-events-auto"
+            >
+              <div class="relative group/preview">
+                <img
+                  id="imagePreview"
+                  class="h-40 rounded-lg shadow-2xl border border-gray-600 object-contain bg-black/50"
+                />
+
+                <button
+                  onclick="removeFile(event)"
+                  class="absolute -top-3 -right-3 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg transition-transform hover:scale-110 z-30"
+                  title="Remove File"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <p
+                id="fileName"
+                class="mt-4 text-sm font-mono text-blue-300 bg-blue-900/30 px-3 py-1 rounded-full border border-blue-500/30"
+              ></p>
+            </div>
+          </div>
+
+          <div id="controls" class="hidden mt-6 animate-pulse-once">
+            <div
+              class="bg-gray-800/50 p-4 rounded-xl border border-gray-700 flex flex-col md:flex-row gap-4 items-center justify-between"
+            >
+              <div class="flex items-center gap-3 w-full md:w-auto">
+                <label class="text-xs text-gray-400 font-bold tracking-wider"
+                  >CONVERT TO:</label
+                >
+                <select
+                  id="formatSelect"
+                  class="bg-gray-900 text-white border border-gray-700 rounded-lg px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-full md:w-40 cursor-pointer hover:bg-gray-800 transition-colors"
+                >
+                  <option value="png">PNG</option>
+                  <option value="jpeg">JPG</option>
+                  <option value="webp">WEBP</option>
+                  <option value="pdf">PDF Document</option>
+                  <option value="ico">ICO Icon</option>
+                </select>
+              </div>
+              <button
+                onclick="convertFile()"
+                class="w-full md:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-2.5 px-8 rounded-lg shadow-lg shadow-blue-600/20 transform transition active:scale-95 flex items-center justify-center gap-2"
+              >
+                <span>⚡</span> Convert Now
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="downloadSection"
+            class="hidden mt-6 text-center bg-green-500/10 border border-green-500/20 rounded-xl p-6"
+          >
+            <div class="flex flex-col items-center">
+              <div
+                class="text-green-400 font-bold mb-4 flex items-center gap-2"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                Conversion Successful!
+              </div>
+              <a
+                id="downloadLink"
+                class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg font-bold shadow-lg transition-all hover:-translate-y-1 w-full md:w-auto justify-center"
+              >
+                ⬇️ DOWNLOAD FILE
+              </a>
+              <button
+                onclick="resetApp()"
+                class="mt-4 text-xs text-gray-500 hover:text-white underline"
+              >
+                Convert Another File
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="how-it-works" class="w-full max-w-4xl mt-32 scroll-mt-32">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-white mb-4">How It Works?</h2>
+          <div class="h-1 w-20 bg-blue-500 mx-auto rounded-full"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div
+            class="glass p-8 rounded-2xl text-center hover:-translate-y-2 transition-transform duration-300"
+          >
+            <div
+              class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-400"
+            >
+              1
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Upload Image</h3>
+            <p class="text-gray-400 text-sm">
+              Drag & drop your file or click to select.
+            </p>
+          </div>
+          <div
+            class="glass p-8 rounded-2xl text-center hover:-translate-y-2 transition-transform duration-300"
+          >
+            <div
+              class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400"
+            >
+              2
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Select Format</h3>
+            <p class="text-gray-400 text-sm">Choose PDF, PNG, JPG, or ICO.</p>
+          </div>
+          <div
+            class="glass p-8 rounded-2xl text-center hover:-translate-y-2 transition-transform duration-300"
+          >
+            <div
+              class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-green-400"
+            >
+              3
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Download</h3>
+            <p class="text-gray-400 text-sm">
+              Get your converted file instantly.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <section
+        class="max-w-4xl mx-auto mt-20 mb-10 p-6 text-gray-500 text-sm text-center border-t border-gray-800"
+      >
+        <h3 class="text-lg font-bold text-gray-400 mb-2">
+          Why use FormatShifter?
+        </h3>
+        <p class="mb-4">
+          FormatShifter is the best
+          <strong>free online image converter</strong> that works directly in
+          your browser. Unlike other tools, we do not upload your photos to any
+          server, ensuring <strong>100% privacy and security</strong>.
+        </p>
+        <p>
+          Easily convert <strong>JPG to PNG transparent</strong>, turn
+          <strong>WebP to JPG</strong> for compatibility, or change images to
+          <strong>PDF documents</strong> for easy sharing. Whether you are a
+          designer needing a fast conversion tool or a student, our tool
+          supports unlimited files with no watermark.
+        </p>
+      </section>
+    </main>
+
+    <script>
+      const fileInput = document.getElementById("fileInput");
+      const dropZone = document.getElementById("dropZone");
+      const uploadText = document.getElementById("uploadText");
+      const previewArea = document.getElementById("previewArea");
+      const imagePreview = document.getElementById("imagePreview");
+      const fileNameDisplay = document.getElementById("fileName");
+      const controls = document.getElementById("controls");
+      const downloadSection = document.getElementById("downloadSection");
+      const downloadLink = document.getElementById("downloadLink");
+
+      let originalFile = null;
+      let originalImage = new Image();
+
+      // Dosya Seçme Olayları
+      fileInput.addEventListener("change", function (e) {
+        handleFile(e.target.files[0]);
+      });
+
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover", "border-blue-500");
+      });
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("dragover", "border-blue-500");
+      });
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover", "border-blue-500");
+        handleFile(e.dataTransfer.files[0]);
+      });
+
+      // Dosya İşleme
+      function handleFile(file) {
+        if (!file || !file.type.startsWith("image/")) {
+          alert("Please upload a valid image file (JPG, PNG, etc.)");
+          return;
+        }
+        originalFile = file;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          originalImage.src = e.target.result;
+          imagePreview.src = e.target.result;
+
+          // UI Değişimi
+          uploadText.classList.add("hidden");
+          previewArea.classList.remove("hidden");
+          controls.classList.remove("hidden");
+          controls.classList.add("flex");
+          fileNameDisplay.textContent = file.name;
+          downloadSection.classList.add("hidden");
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // DOSYA SİLME FONKSİYONU
+      function removeFile(event) {
+        if (event) event.stopPropagation();
+        fileInput.value = "";
+        originalFile = null;
+        uploadText.classList.remove("hidden");
+        previewArea.classList.add("hidden");
+        controls.classList.add("hidden");
+        controls.classList.remove("flex");
+        downloadSection.classList.add("hidden");
+      }
+
+      // Dönüştürme
+      function convertFile() {
+        const format = document.getElementById("formatSelect").value;
+        if (format === "pdf") {
+          convertToPDF();
+          return;
+        }
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = originalImage.width;
+        canvas.height = originalImage.height;
+        ctx.drawImage(originalImage, 0, 0);
+
+        const dataUrl = canvas.toDataURL(`image/${format}`, 0.9);
+        showDownloadButton(dataUrl, format);
+      }
+
+      function convertToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const imgProps = doc.getImageProperties(originalImage.src);
+        const pdfWidth = doc.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        doc.addImage(originalImage.src, "JPEG", 0, 0, pdfWidth, pdfHeight);
+        const pdfBlob = doc.output("blob");
+        const url = URL.createObjectURL(pdfBlob);
+        showDownloadButton(url, "pdf");
+      }
+
+      function showDownloadButton(url, extension) {
+        const originalName = originalFile.name.split(".")[0];
+        downloadLink.href = url;
+        downloadLink.download = `${originalName}-converted.${extension}`;
+        controls.classList.add("hidden");
+        downloadSection.classList.remove("hidden");
+      }
+
+      function resetApp() {
+        removeFile();
+      }
+    </script>
+  </body>
+</html>
